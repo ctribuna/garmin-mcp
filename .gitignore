@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.vercel/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+# Garmin tokens must never be committed
+garmin_tokens.json
+.garminconnect/
+__pycache__/
