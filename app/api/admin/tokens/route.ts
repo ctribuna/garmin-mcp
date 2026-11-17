@@ -11,7 +11,7 @@
 import { GarminClient, GarminError } from "@/garmin/client";
 import { getGarminClient } from "@/garmin/client";
 import { getTokenStore, MemoryTokenStore, parseTokens, TokenFormatError } from "@/garmin/tokens";
-import { authorize, bearerToken, isValidSecret, jsonResponse } from "@/lib/auth";
+import { authorize, jsonResponse } from "@/lib/auth";
 
 export const maxDuration = 60;
 
@@ -19,7 +19,6 @@ export async function POST(request: Request): Promise<Response> {
   // Header only: the upload endpoint never accepts the secret in the URL.
   const denied = authorize(request);
   if (denied) return denied;
-  if (!isValidSecret(bearerToken(request))) return jsonResponse(401, { error: "Unauthorized" });
 
   let tokens;
   try {

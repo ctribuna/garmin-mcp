@@ -3,6 +3,9 @@ import { compact } from "@/lib/compact";
 import { resolveDate, resolveRange } from "@/lib/dates";
 import { dateParam, defineTool, endParam, gather, startParam, type ToolContext } from "../tool";
 
+/** Most activities get_training_load reads in one request. */
+const LOAD_ACTIVITY_LIMIT = 400;
+
 export function registerTrainingTools(ctx: ToolContext): void {
   const { api } = ctx;
 
@@ -116,7 +119,7 @@ export function registerTrainingTools(ctx: ToolContext): void {
         startDate: range.start,
         endDate: range.end,
         start: 0,
-        limit: 400,
+        limit: LOAD_ACTIVITY_LIMIT,
       });
       const rows = activities.map((a) => ({
         date: typeof a.startTimeLocal === "string" ? a.startTimeLocal.slice(0, 10) : undefined,
@@ -130,7 +133,14 @@ export function registerTrainingTools(ctx: ToolContext): void {
       }));
       const totalLoad = rows.reduce((sum, r) => sum + (typeof r.load === "number" ? r.load : 0), 0);
       return compact(
-        { range, activityCount: rows.length, totalLoad: Math.round(totalLoad), activities: rows },
+        {
+          range,
+          activityCount: rows.length,
+          // Garmin returned a full page, so older activities in the range may be missing.
+          ...(rows.length === LOAD_ACTIVITY_LIMIT ? { truncated: true } : {}),
+          totalLoad: Math.round(totalLoad),
+          activities: rows,
+        },
         { maxArray: 400 },
       );
     },

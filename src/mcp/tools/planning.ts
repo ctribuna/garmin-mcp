@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { buildWorkout, workoutSchema } from "@/garmin/workout";
 import { compact, pick } from "@/lib/compact";
-import { addDays, assertDate, resolveDate, resolveRange, today } from "@/lib/dates";
+import { addDays, assertDate, resolveDate, resolveRange } from "@/lib/dates";
 import { dateParam, defineTool, gather, type ToolContext } from "../tool";
 
 const workoutId = z.number().int().positive().describe("Workout id, from list_workouts or create_workout");
@@ -164,7 +164,7 @@ export function registerPlanningTools(ctx: ToolContext): void {
     },
     async ({ workout_id }) => {
       await api.deleteWorkout(workout_id);
-      return { deleted: workout_id, on: today() };
+      return { deleted: workout_id };
     },
   );
 }
